@@ -34,14 +34,15 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Zip artifact for deployment
-        run: |
-          zip -r release.zip . -x "venv/*" ".venv/*" "__pycache__/*"
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: release.zip
+          path: |
+            release.zip
+            !venv/
 
   deploy:
     runs-on: ubuntu-latest
@@ -66,14 +67,20 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5006897C8F324FCCA98DDCFD6289020A }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A3F56ACE917447EC8C3D855B596EABB5 }}
 
-      - name: Deploy to Azure Function App using zip
+      - name: Deploy to Azure Function App
         uses: Azure/functions-action@v1
         id: deploy-to-function
         with:
           app-name: 'func-backup'
           slot-name: 'Production'
           package: release.zip
-          app-settings: |
-            PRIMARY_STORAGE_CONNECTION_STRING=${{ secrets.PRIMARY_STORAGE_CONNECTION_STRING }}
-            SECONDARY_STORAGE_CONNECTION_STRING=${{ secrets.SECONDARY_STORAGE_CONNECTION_STRING }}
-            SECONDARY_CONTAINER_NAME=${{ secrets.SECONDARY_CONTAINER_NAME }}
+
+      - name: Set App Settings (Environment Variables)
+        run: |
+          az functionapp config appsettings set \
+            --name func-backup \
+            --resource-group your-resource-group-name \
+            --settings \
+            "PRIMARY_STORAGE_CONNECTION_STRING=${{ secrets.PRIMARY_STORAGE_CONNECTION_STRING }}" \
+            "SECONDARY_STORAGE_CONNECTION_STRING=${{ secrets.SECONDARY_STORAGE_CONNECTION_STRING }}" \
+            "SECONDARY_CONTAINER_NAME=${{ secrets.SECONDARY_CONTAINER_NAME }}"
