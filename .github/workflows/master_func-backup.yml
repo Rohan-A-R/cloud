@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # Root folder of your Azure Function
-  PYTHON_VERSION: '3.12' # Match this with your Azure Function runtime stack
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './BlobReplicatorFunction'  
+  PYTHON_VERSION: '3.12'
 
 jobs:
   build:
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write  # Required for Azure OIDC login
+      id-token: write
       contents: read
 
     steps:
