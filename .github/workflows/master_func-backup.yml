@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: './BlobReplicatorFunction'  
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'  
   PYTHON_VERSION: '3.12'
 
 jobs:
